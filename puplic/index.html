@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barbearia - Sistema Completo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Menu Lateral -->
+      <div class="sidebar">
+        <!-- Botão de alternar tema -->
+        
+        <h2>Barbearia</h2>
+        
+        <div class="tab active" onclick="showTab('venda')">Registrar Venda</div>
+        <div class="tab" onclick="showTab('cvenda')">Consultar vendas</div>
+        <div class="tab" onclick="showTab('clientes')">Cadastrar Cliente</div>
+        <div class="tab" onclick="showTab('barbeiros')">Cadastrar Barbeiro</div>
+        <div class="tab" onclick="showTab('servicos')">Cadastrar Serviço</div>
+        <div class="tab" onclick="showTab('comissao')">Calcular Comissão</div>
+        <div class="tab" onclick="showTab('agendar')">Agendar Horário</div>
+      </div>
+
+      <!-- Conteúdo Principal -->
+       
+      <div class="main-content">
+        <button id="btnTema" class="btn-tema">Alternar para Claro</button>
+        <!-- Tela: Registrar Venda -->
+        <div id="venda" class="tab-content active">
+          <h1>Registrar Venda</h1>
+          <form id="formVenda">
+            <label for="cliente">Cliente</label>
+            <div class="search-container">
+              <input
+                type="text"
+                id="cliente"
+                placeholder="Digite para buscar ou adicionar"
+              />
+              <ul class="suggestions" id="suggestions-cliente"></ul>
+            </div>
+
+            <label for="barbeiro">Nome do Barbeiro</label>
+            <div class="search-container">
+              <input
+                type="text"
+                id="barbeiro"
+                placeholder="Digite para buscar ou adicionar"
+              />
+              <ul class="suggestions" id="suggestions-barbeiro"></ul>
+            </div>
+
+            <label for="servico">Serviço</label>
+            <div class="search-container">
+              <input
+                type="text"
+                id="servico"
+                placeholder="Digite para buscar ou adicionar"
+              />
+              <ul class="suggestions" id="suggestions-servico"></ul>
+            </div>
+
+            <label for="valor">Valor da Venda (R$)</label>
+            <input
+              type="number"
+              step="0.01"
+              id="valor"
+              placeholder="Exemplo: 50.00"
+              required
+            />
+
+            <label for="pagamento">Forma de Pagamento</label>
+            <select id="pagamento" required>
+              <option value="">Selecione</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Pix">Pix</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Cartão de Débito">Cartão de Débito</option>
+            </select>
+
+            <button type="submit">Registrar Venda</button>
+          </form>
+
+          <div class="resumo" id="resumoVenda" style="display: none">
+            <strong>Venda registrada:</strong><br />
+            <p><strong>Cliente:</strong> <span id="infoCliente"></span></p>
+            <p><strong>Barbeiro:</strong> <span id="infoBarbeiro"></span></p>
+            <p><strong>Serviço:</strong> <span id="infoServico"></span></p>
+            <p><strong>Valor:</strong> R$ <span id="infoValor"></span></p>
+            <p><strong>Pagamento:</strong> <span id="infoPagamento"></span></p>
+          </div>
+        </div>
+
+        <!--Consultar Vendas -->
+        <div id="cvenda" class="tab-content">
+          <h1>Consultar Vendas</h1>
+
+          <div class="filter-container">
+            <div class="form-group">
+              <label for="filtro-data-inicio">Data Inicial</label>
+              <input type="date" id="filtro-data-inicio" />
+            </div>
+
+            <div class="form-group">
+              <label for="filtro-data-fim">Data Final</label>
+              <input type="date" id="filtro-data-fim" />
+            </div>
+
+            <!-- Campo: Cliente (com autocompletar) -->
+            <div class="form-group">
+              <label for="filtro-cliente">Cliente</label>
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="filtro-cliente"
+                  placeholder="Nome do cliente"
+                />
+                <ul class="suggestions" id="suggestions-filtro-cliente"></ul>
+              </div>
+            </div>
+
+            <!-- Campo: Barbeiro (com autocompletar) -->
+            <div class="form-group">
+              <label for="filtro-barbeiro">Barbeiro</label>
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="filtro-barbeiro"
+                  placeholder="Nome do barbeiro"
+                />
+                <ul class="suggestions" id="suggestions-filtro-barbeiro"></ul>
+              </div>
+            </div>
+
+            <!-- Campo: Serviço (com autocompletar) -->
+            <div class="form-group">
+              <label for="filtro-servico">Serviço</label>
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="filtro-servico"
+                  placeholder="Tipo de serviço"
+                />
+                <ul class="suggestions" id="suggestions-filtro-servico"></ul>
+              </div>
+            </div>
+
+            <button type="button" onclick="filtrarVendas()" class="btn-filter">
+              Filtrar Vendas
+            </button>
+          </div>
+
+          <div id="resultados-vendas">
+            <table id="tabela-vendas" style="display: none">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Barbeiro</th>
+                  <th>Serviço</th>
+                  <th>Valor (R$)</th>
+                  <th>Pagamento</th>
+                </tr>
+              </thead>
+              <tbody id="corpo-tabela-vendas">
+                <!-- Linhas preenchidas dinamicamente -->
+              </tbody>
+            </table>
+            <p
+              id="mensagem-vazio"
+              style="display: none; color: #777; text-align: center"
+            >
+              Nenhuma venda encontrada com os filtros aplicados.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tela: Calcular Comissão -->
+        <div id="comissao" class="tab-content">
+          <h1>Calcular Comissão</h1>
+          <label for="barbeiroComissao">Nome do Barbeiro</label>
+          <div class="search-container">
+            <input
+              type="text"
+              id="barbeiroComissao"
+              placeholder="Digite para buscar"
+            />
+            <ul class="suggestions" id="suggestions-comissao"></ul>
+          </div>
+          <label for="periodo">Período</label>
+          <select id="periodo">
+            <option value="semana">Últimos 7 dias</option>
+            <option value="mes">Últimos 30 dias</option>
+            <option value="personalizado">Data Personalizada</option>
+          </select>
+          <div id="dataPersonalizada" style="display: none">
+            <label for="dataInicio">Data de Início</label>
+            <input type="date" id="dataInicio" />
+            <label for="dataFim">Data de Fim</label>
+            <input type="date" id="dataFim" />
+          </div>
+          <button onclick="buscarVendas()">Buscar Vendas</button>
+          <div class="resumo" id="vendasInfo" style="display: none">
+            <strong>Vendas encontradas:</strong><br />
+            <p>
+              <strong>Total de Vendas:</strong> R$
+              <span id="totalVendasExibido"></span>
+            </p>
+          </div>
+          <div id="comissaoInputs" style="display: none">
+            <label for="porcentagem">Porcentagem de Comissão (%)</label>
+            <input
+              type="number"
+              id="porcentagem"
+              placeholder="Exemplo: 30"
+              step="0.01"
+            />
+            <button onclick="calcularComissao()">Calcular Comissão</button>
+          </div>
+          <div class="resumo" id="resultado" style="display: none">
+            <strong>Resultado:</strong><br />
+            <p><strong>Barbeiro:</strong> <span id="nomeBarbeiroRes"></span></p>
+            <p>
+              <strong>Total de Vendas:</strong> R$
+              <span id="totalVendasRes"></span>
+            </p>
+            <p>
+              <strong>Comissão (%):</strong> <span id="percentualRes"></span>%
+            </p>
+            <p>
+              <strong>Valor da Comissão:</strong> R$
+              <span id="valorComissaoRes"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Tela: Cadastrar Cliente -->
+        <div id="clientes" class="tab-content">
+          <h1>Cadastrar Cliente</h1>
+          <form id="formCliente">
+            <label for="nomeCliente">Nome do Cliente</label>
+            <input
+              type="text"
+              id="nomeCliente"
+              placeholder="Ex: Marcos Oliveira"
+              required
+            />
+            <label for="telefoneCliente">Telefone (opcional)</label>
+            <input
+              type="text"
+              id="telefoneCliente"
+              placeholder="(XX) XXXXX-XXXX"
+            />
+            <button type="submit">Cadastrar Cliente</button>
+          </form>
+          <div class="resumo">
+            <strong>Clientes Cadastrados:</strong>
+            <ul id="listaClientes"></ul>
+          </div>
+        </div>
+
+        <!-- Tela: Cadastrar Barbeiro -->
+        <div id="barbeiros" class="tab-content">
+          <h1>Cadastrar Barbeiro</h1>
+          <form id="formBarbeiro">
+            <label for="nomeBarbeiro">Nome do Barbeiro</label>
+            <input
+              type="text"
+              id="nomeBarbeiro"
+              placeholder="Ex: João Silva"
+              required
+            />
+            <label for="telefoneBarbeiro">Telefone (opcional)</label>
+            <input
+              type="text"
+              id="telefoneBarbeiro"
+              placeholder="(XX) XXXXX-XXXX"
+            />
+            <button type="submit">Cadastrar Barbeiro</button>
+          </form>
+          <div class="resumo">
+            <strong>Barbeiros Cadastrados:</strong>
+            <ul id="listaBarbeiros"></ul>
+          </div>
+        </div>
+
+        <!-- Tela: Cadastrar Serviço -->
+        <div id="servicos" class="tab-content">
+          <h1>Cadastrar Serviço</h1>
+          <form id="formServico">
+            <label for="nomeServico">Nome do Serviço</label>
+            <input
+              type="text"
+              id="nomeServico"
+              placeholder="Ex: Corte Social"
+              required
+            />
+            <label for="precoServico">Preço (R$)</label>
+            <input
+              type="number"
+              step="0.01"
+              id="precoServico"
+              placeholder="Ex: 40.00"
+              required
+            />
+            <button type="submit">Cadastrar Serviço</button>
+          </form>
+          <div class="resumo">
+            <strong>Serviços Cadastrados:</strong>
+            <ul id="listaServicos"></ul>
+          </div>
+        </div>
+
+        <!-- Tela: Agendar Horário -->
+        <div id="agendar" class="tab-content">
+          <h1>Agendar Horário</h1>
+          <form id="formAgendar">
+            <label for="agendarCliente">Cliente</label>
+            <div class="search-container">
+              <input
+                type="text"
+                id="agendarCliente"
+                placeholder="Digite para buscar ou adicionar"
+                required
+              />
+              <ul class="suggestions" id="suggestions-agendar-cliente"></ul>
+            </div>
+
+            <label for="agendarBarbeiro">Barbeiro</label>
+            <div class="search-container">
+              <input
+                type="text"
+                id="agendarBarbeiro"
+                placeholder="Digite para buscar ou adicionar"
+                required
+              />
+              <ul class="suggestions" id="suggestions-agendar-barbeiro"></ul>
+            </div>
+
+            <label for="agendarServico">Serviço</label>
+            <div class="search-container">
+              <input
+                type="text"
+                id="agendarServico"
+                placeholder="Digite para buscar ou adicionar"
+                required
+              />
+              <ul class="suggestions" id="suggestions-agendar-servico"></ul>
+            </div>
+
+            <label for="agendarData">Data</label>
+            <input type="date" id="agendarData" required />
+
+            <label for="agendarHora">Hora</label>
+            <input type="time" id="agendarHora" required />
+
+            <label for="agendarObs">Observações</label>
+            <textarea id="agendarObs" placeholder="Observações (opcional)"></textarea>
+
+            <button type="submit">Agendar</button>
+          </form>
+          <div class="resumo" id="resumoAgendar" style="display: none">
+            <strong>Horário agendado com sucesso!</strong>
+            <p><strong>Cliente:</strong> <span id="agendarInfoCliente"></span></p>
+            <p><strong>Barbeiro:</strong> <span id="agendarInfoBarbeiro"></span></p>
+            <p><strong>Serviço:</strong> <span id="agendarInfoServico"></span></p>
+            <p><strong>Data:</strong> <span id="agendarInfoData"></span></p>
+            <p><strong>Hora:</strong> <span id="agendarInfoHora"></span></p>
+            <p><strong>Observações:</strong> <span id="agendarInfoObs"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/script.js"></script>
+  </body>
+</html>
